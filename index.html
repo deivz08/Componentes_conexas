@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Componentes conexas | Laboratorio de grafos</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- 1. Cargar PyScript para que el navegador ejecute Python -->
+  <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+</head>
+<body>
+  <header>
+    <div class="top">
+      <div class="brand">
+        <span class="mark">✳</span>
+        <span>GRAFOS<small>MATEMÁTICA COMPUTACIONAL</small></span>
+      </div>
+      <nav class="tabs" aria-label="Material de apoyo">
+        <button class="tab" data-panel="claves">Puntos clave</button>
+        <button class="tab" data-panel="metodo">Método</button>
+        <button class="tab" data-panel="notacion">Multiplicación booleana</button>
+      </nav>
+    </div>
+    
+    <div id="claves" class="tab-panel">
+      <div class="tab-panel-inner row">
+        <div>
+          <b>Grafo conexo</b>
+          <p>Hay un camino entre todos sus vértices.</p>
+        </div>
+        <div>
+          <b>Componente</b>
+          <p>Grupo conexo máximo de vértices.</p>
+        </div>
+        <div>
+          <b>Matriz de adyacencia</b>
+          <p>Un 1 indica una arista directa.</p>
+        </div>
+        <div>
+          <b>Matriz de caminos</b>
+          <p>Incluye rutas directas e indirectas.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div id="metodo" class="tab-panel">
+      <div class="tab-panel-inner">
+        <b>Pasos</b>
+        <p>1. Construye el grafo.</p>
+        <p>2. Completa la diagonal de la matriz.</p>
+        <p>3. Multiplica matrices con producto booleano hasta que no aparezcan rutas nuevas.</p>
+      </div>
+    </div>
+    
+    <div id="notacion" class="tab-panel">
+      <div class="tab-panel-inner">
+        <b>Producto booleano fila por columna</b>
+        <p>Multiplica cada par de valores con AND (∧) y combina los resultados con OR (∨). Si algún producto es 1, la celda resultante vale 1.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">LECTURA 5.1 · MATEMÁTICA COMPUTACIONAL</div>
+    <h1>COMPONENTES CONEXAS</h1>
+    <p>Construye el grafo y usa matrices booleanas para encontrar los caminos entre sus vértices.</p>
+    <span class="chip">Laboratorio guiado · 4–12 vértices</span>
+  </section>
+
+  <main>
+    <section class="step" id="stepGraph">
+      <div class="head">
+        <div>
+          <h2>1 · Dibuja el grafo</h2>
+          <p>Selecciona dos vértices para conectarlos. Vuelve a pulsar una arista para quitarla.</p>
+        </div>
+      </div>
+      <div class="box">
+        <div class="controls">
+          <label for="size" class="small">Cantidad de vértices</label>
+          <select id="size" class="select"></select>
+          <button id="clear">Limpiar conexiones</button>
+          <button id="example">Cargar ejemplo</button>
+          <span id="graphmsg" class="small"></span>
+        </div>
+        <div class="builder">
+          <div class="graphwrap">
+            <svg id="graph" viewBox="0 0 520 330" aria-label="Lienzo para construir un grafo"></svg>
+            <p class="graphhint">Pulsa un vértice y después otro. Una arista une el par.</p>
+          </div>
+          <div class="matrixbox">
+            <h3 class="subhead">Matriz de adyacencia</h3>
+            <p class="small">Se actualiza al modificar las conexiones.</p>
+            <div id="rawmatrix" class="matrixscroll"></div>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="nextMatrix" class="primary">Continuar a la matriz</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="step hidden" id="stepMatrix">
+      <div class="head">
+        <div>
+          <h2>2 · Completa la matriz</h2>
+          <p>Agrega 1 en cada casilla de la diagonal principal: cada vértice está conectado consigo mismo.</p>
+        </div>
+      </div>
+      <div class="box">
+        <p class="small">Pulsa las casillas diagonales para poner o quitar 1.</p>
+        <div id="adjmatrix" class="matrixscroll"></div>
+        <div class="controls">
+          <button class="back" id="backGraph">← Volver al grafo</button>
+          <button id="nextProduct" class="primary">Continuar a la multiplicación</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="step hidden" id="stepProduct">
+      <div class="head">
+        <div>
+          <h2>3 · Multiplicación booleana</h2>
+          <p id="productPrompt"></p>
+        </div>
+      </div>
+      <div class="box">
+        <div class="mathline">Celda (i,j) = (aᵢ₁ ∧ a₁ⱼ) ∨ (aᵢ₂ ∧ a₂ⱼ) ∨ … ∨ (aᵢₙ ∧ aₙⱼ)</div>
+        <div class="builder">
+          <div>
+            <h3 class="subhead" id="powerTitle"></h3>
+            <div id="powerMatrix" class="matrixscroll"></div>
+          </div>
+          <div>
+            <h3 class="subhead" id="resultTitle"></h3>
+            <div id="productMatrix" class="matrixscroll"></div>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="back" id="backMatrix">← Volver a la matriz</button>
+          <button id="checkProduct" class="primary">Comprobar producto</button>
+          <button id="showProduct">Mostrar resultado</button>
+        </div>
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Lectura 5.1 · Componentes conexas · Laboratorio de matrices</footer>
+  
+  <!-- 2. Cargamos tu lógica en Python en lugar del JS antiguo -->
+  <script type="py" src="main.py" config='{"packages": []}'></script>
+</body>
+</html>
