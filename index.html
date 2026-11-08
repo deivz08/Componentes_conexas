@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Componentes conexas | Laboratorio de grafos</title>
   <link rel="stylesheet" href="style.css">
-  
-  <!-- 1. Cargar PyScript para que el navegador ejecute Python -->
   <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
   <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 </head>
@@ -14,58 +12,60 @@
   <header>
     <div class="top">
       <div class="brand">
-        <span class="mark">✳</span>
+        <span class="mark">-/-</span>
         <span>GRAFOS<small>MATEMÁTICA COMPUTACIONAL</small></span>
       </div>
       <nav class="tabs" aria-label="Material de apoyo">
-        <button class="tab" data-panel="claves">Puntos clave</button>
-        <button class="tab" data-panel="metodo">Método</button>
-        <button class="tab" data-panel="notacion">Multiplicación booleana</button>
+        <button class="tab" data-panel="claves" aria-expanded="false">Puntos clave</button>
+        <button class="tab" data-panel="metodo" aria-expanded="false">Método</button>
+        <button class="tab" data-panel="notacion" aria-expanded="false">¿Qué es una componente?</button>
       </nav>
     </div>
-    
+
     <div id="claves" class="tab-panel">
       <div class="tab-panel-inner row">
         <div>
-          <b>Grafo conexo</b>
-          <p>Hay un camino entre todos sus vértices.</p>
+          <b>Grafo dirigido</b>
+          <p>Las flechas indican el sentido de cada conexión.</p>
         </div>
         <div>
-          <b>Componente</b>
-          <p>Grupo conexo máximo de vértices.</p>
+          <b>Componente conexa</b>
+          <p>Grupo de vértices que pueden alcanzarse mutuamente siguiendo las flechas.</p>
         </div>
         <div>
           <b>Matriz de adyacencia</b>
-          <p>Un 1 indica una arista directa.</p>
+          <p>Un 1 indica una flecha directa de la fila hacia la columna.</p>
         </div>
         <div>
           <b>Matriz de caminos</b>
-          <p>Incluye rutas directas e indirectas.</p>
+          <p>Un 1 indica que existe un camino dirigido, aunque pase por otros vértices.</p>
         </div>
       </div>
     </div>
-    
+
     <div id="metodo" class="tab-panel">
       <div class="tab-panel-inner">
-        <b>Pasos</b>
-        <p>1. Construye el grafo.</p>
-        <p>2. Completa la diagonal de la matriz.</p>
-        <p>3. Multiplica matrices con producto booleano hasta que no aparezcan rutas nuevas.</p>
+        <b>Pasos del algoritmo</b>
+        <p>1. Se construye la matriz de adyacencia A.</p>
+        <p>2. Se agregan 1 en la diagonal principal (A + I).</p>
+        <p>3. Se calcula la matriz de caminos fila por fila.</p>
+        <p>4. Se ordenan filas y columnas por cantidad de 1.</p>
+        <p>5. Los bloques cuadrados diagonales de 1 son las componentes conexas.</p>
       </div>
     </div>
-    
+
     <div id="notacion" class="tab-panel">
       <div class="tab-panel-inner">
-        <b>Producto booleano fila por columna</b>
-        <p>Multiplica cada par de valores con AND (∧) y combina los resultados con OR (∨). Si algún producto es 1, la celda resultante vale 1.</p>
+        <b>¿Cómo reconocerlas?</b>
+        <p>Dos vértices están en la misma componente cuando existe un camino dirigido de uno al otro y también un camino de regreso.</p>
       </div>
     </div>
   </header>
 
   <section class="hero">
-    <div class="eyebrow">LECTURA 5.1 · MATEMÁTICA COMPUTACIONAL</div>
+    <div class="eyebrow">MATEMÁTICA COMPUTACIONAL · GRAFOS DIRIGIDOS</div>
     <h1>COMPONENTES CONEXAS</h1>
-    <p>Construye el grafo y usa matrices booleanas para encontrar los caminos entre sus vértices.</p>
+    <p>Construye un grafo, revisa los caminos dirigidos y observa los subgrafos de cada componente.</p>
     <span class="chip">Laboratorio guiado · 4–12 vértices</span>
   </section>
 
@@ -73,84 +73,131 @@
     <section class="step" id="stepGraph">
       <div class="head">
         <div>
-          <h2>1 · Dibuja el grafo</h2>
-          <p>Selecciona dos vértices para conectarlos. Vuelve a pulsar una arista para quitarla.</p>
+          <h2>1 · Grafo dirigido y Matriz Inicial</h2>
+          <p>Agrega flechas haciendo clic en dos vértices. La dirección importa para comprobar los caminos.</p>
         </div>
       </div>
       <div class="box">
+        <div class="intro-box">
+          <h3 class="subhead">Pasos que seguirá el sistema</h3>
+          <ol id="introSteps" class="walklog"></ol>
+        </div>
         <div class="controls">
           <label for="size" class="small">Cantidad de vértices</label>
           <select id="size" class="select"></select>
           <button id="clear">Limpiar conexiones</button>
-          <button id="example">Cargar ejemplo</button>
+          <button id="randomGraph">Generar aleatorio</button>
           <span id="graphmsg" class="small"></span>
         </div>
-        <div class="builder">
-          <div class="graphwrap">
-            <svg id="graph" viewBox="0 0 520 330" aria-label="Lienzo para construir un grafo"></svg>
-            <p class="graphhint">Pulsa un vértice y después otro. Una arista une el par.</p>
+        <div class="initial-visuals">
+          <div class="graphwrap main-graph-wrap">
+            <h3 class="subhead">Grafo original</h3>
+            <svg id="graph" viewBox="0 0 740 460" aria-label="Grafo dirigido original"></svg>
+            <p class="graphhint">
+              Pulsa dos vértices para agregar una flecha. Pulsa una flecha para quitarla.
+              El grafo original se conserva aquí; los grupos coloreados se mostrarán en el punto 4.
+            </p>
           </div>
-          <div class="matrixbox">
-            <h3 class="subhead">Matriz de adyacencia</h3>
-            <p class="small">Se actualiza al modificar las conexiones.</p>
-            <div id="rawmatrix" class="matrixscroll"></div>
+
+          <div class="matrixbox adjacency-box">
+            <h3 class="subhead">Matriz de Adyacencia (A)</h3>
+            <p class="small">Refleja exclusivamente las conexiones directas actuales.</p>
+            <div id="adjMatrix" class="matrixscroll"></div>
+          </div>
+
+          <div class="matrix-pair hidden" id="step1Matrices">
+            <div class="matrixbox">
+              <h3 class="subhead">Matriz A + I</h3>
+              <p class="small">Se añade "1" en la diagonal principal antes de calcular caminos.</p>
+              <div id="adjIdentityMatrix" class="matrixscroll"></div>
+            </div>
+            <div class="graphwrap main-graph-wrap reflexive-wrap">
+              <h3 class="subhead">Grafo de la matriz A + I</h3>
+              <p class="small">Se conserva cada flecha y se agrega un lazo en cada vértice.</p>
+              <svg id="reflexiveGraph" viewBox="0 0 740 460" aria-label="Grafo de la matriz A más I"></svg>
+            </div>
           </div>
         </div>
-        <div class="controls">
-          <button id="nextMatrix" class="primary">Continuar a la matriz</button>
+
+        <div class="controls initial-controls">
+          <button id="startWalk" class="primary">Mostrar A + I y grafo reflexivo</button>
         </div>
       </div>
     </section>
 
-    <section class="step hidden" id="stepMatrix">
+    <section class="step hidden" id="stepWalk">
       <div class="head">
         <div>
-          <h2>2 · Completa la matriz</h2>
-          <p>Agrega 1 en cada casilla de la diagonal principal: cada vértice está conectado consigo mismo.</p>
+          <h2>2 · Matrices y revisión de caminos</h2>
+          <p>Se parte de A + I, se calcula la matriz de caminos fila por fila y luego se ordena para leer los bloques.</p>
         </div>
       </div>
       <div class="box">
-        <p class="small">Pulsa las casillas diagonales para poner o quitar 1.</p>
-        <div id="adjmatrix" class="matrixscroll"></div>
+        <div class="matrixbox">
+          <h3 class="subhead">Matriz de caminos</h3>
+          <p class="small">
+            Se parte de A + I. En cada paso, si la fila i tiene un 1 en la columna k, la fila i se completa
+            con los 1 de la fila k (los 1 nuevos salen en rojo). Un 1 indica que se puede ir de un vértice a otro.
+          </p>
+          <div id="pathmatrix" class="matrixscroll"></div>
+        </div>
+
+        <p id="walkState" class="walkstate"></p>
+        <ol id="walkLog" class="walklog"></ol>
+        
+        <div id="finalMatrixBox" class="matrixbox final-matrix-box hidden">
+          <h3 class="subhead">Matriz de caminos ordenada</h3>
+          <p class="small">
+            Filas ordenadas de mayor a menor cantidad de unos; las columnas siguen el mismo orden.
+            Los bordes de color encierran cada componente conexa.
+          </p>
+          <p id="matrixOrder" class="small"></p>
+          <p id="sortingMessage" class="walkstate"></p>
+          <div id="orderedMatrix" class="matrixscroll"></div>
+        </div>
+
+        <p id="componentState" class="walkstate"></p>
+        <ol id="componentWalkLog" class="walklog"></ol>
         <div class="controls">
-          <button class="back" id="backGraph">← Volver al grafo</button>
-          <button id="nextProduct" class="primary">Continuar a la multiplicación</button>
+          <button id="nextStep" class="primary">Siguiente comprobación</button>
         </div>
       </div>
     </section>
 
-    <section class="step hidden" id="stepProduct">
+    <section class="step hidden" id="stepResult">
       <div class="head">
         <div>
-          <h2>3 · Multiplicación booleana</h2>
-          <p id="productPrompt"></p>
+          <h2>3 · Resultados</h2>
+          <p>Resumen de las componentes conexas encontradas.</p>
         </div>
       </div>
-      <div class="box">
-        <div class="mathline">Celda (i,j) = (aᵢ₁ ∧ a₁ⱼ) ∨ (aᵢ₂ ∧ a₂ⱼ) ∨ … ∨ (aᵢₙ ∧ aₙⱼ)</div>
-        <div class="builder">
-          <div>
-            <h3 class="subhead" id="powerTitle"></h3>
-            <div id="powerMatrix" class="matrixscroll"></div>
-          </div>
-          <div>
-            <h3 class="subhead" id="resultTitle"></h3>
-            <div id="productMatrix" class="matrixscroll"></div>
-          </div>
+      <div class="box resultbox">
+        <div class="count">
+          <strong id="componentCount">0</strong>
+          <span>componentes conexas</span>
         </div>
-        <div class="controls">
-          <button class="back" id="backMatrix">← Volver a la matriz</button>
-          <button id="checkProduct" class="primary">Comprobar producto</button>
-          <button id="showProduct">Mostrar resultado</button>
+        <ol id="componentList" class="component-list"></ol>
+      </div>
+    </section>
+
+    <section class="step hidden" id="stepSubgraphs">
+      <div class="head">
+        <div>
+          <h2>4 · Grafo de las componentes conexas</h2>
+          <p>Se muestran solo las flechas internas de cada componente. Los colores identifican los grupos.</p>
         </div>
-        <div class="feedback" id="feedback" aria-live="polite"></div>
+      </div>
+      <div class="box final-graph-box">
+        <svg id="componentGraph" viewBox="0 0 740 460" aria-label="Grafo con sus componentes conexas coloreadas"></svg>
+        <div id="componentLegend" class="component-legend"></div>
       </div>
     </section>
   </main>
 
-  <footer class="footer">Lectura 5.1 · Componentes conexas · Laboratorio de matrices</footer>
-  
-  <!-- 2. Cargamos tu lógica en Python en lugar del JS antiguo -->
+  <footer class="footer">
+    Laboratorio de grafos dirigidos · Matemática Computacional
+  </footer>
+
   <script type="py" src="main.py" config='{"packages": []}'></script>
 </body>
 </html>
