@@ -437,7 +437,7 @@ def generar_aleatorio(event):
     document.getElementById("stepResult").classList.add("hidden")
     document.getElementById("stepSubgraphs").classList.add("hidden")
     document.getElementById("graphmsg").textContent = ("Grafo aleatorio generado; puedes ajustar las flechas"
-)
+    )
     
 
     dibujar()
